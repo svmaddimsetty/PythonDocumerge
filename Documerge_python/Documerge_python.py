@@ -1,54 +1,80 @@
-import os
+import os 
+import re
 
+def process_files(file1, file2, output_file_prefix):
+    # Read content of File1
+    with open(file1, 'r') as f1:
+        lines1 = f1.readlines()
 
+    # Read content of File2 (names list)
+    with open(file2, 'r') as f2:
+        forms_list = f2.readlines()
 
-
-def generate_output_files(input_file_1, input_file_2, output_file_prefix, batch_size=10):
-    # Step 1: Read Input File 1 and extract lines 5 to 10
-
-    print("Current working directory:", os.getcwd())
-
-    with open(input_file_1, 'r') as file:
-        lines = file.readlines()
+    batch_counter = 0  # To count which output file to write to
     
-    # Extract lines 5 to 10 (index 4 to 9 in Python)
-    lines_to_repeat = lines[4:10]
-    
-    # Step 2: Read Input File 2 (list of form names)
-    with open(input_file_2, 'r') as file:
-        form_names = file.readlines()
-    
-    # Clean up form names (strip extra spaces or newlines)
-    form_names = [form.strip() for form in form_names]
-    
-    # Step 3: Generate the output content in chunks
-    total_forms = len(form_names)
-    num_batches = (total_forms // batch_size) + (1 if total_forms % batch_size != 0 else 0)
-    
-    for batch_num in range(num_batches):
-        # Output file name based on the batch number
-        output_file = f"{output_file_prefix}_{batch_num + 1}.txt"
-        
-        # Write to the batch output file
-        with open(output_file, 'w') as output:
-            start_index = batch_num * batch_size
-            end_index = start_index + batch_size
-            batch_form_names = form_names[start_index:end_index]
+    start_batch = lines1[:6]
+    mid_batch = lines1[6:22]
+    last_step = lines1[26:]
+
+    forms_counter = 0 
+    each_form = 0
+
+    while each_form < len(forms_list):
+
+        step_lines = []
+
+        len_forms = len(forms_list)
+
+
+        for each_step in range(20):
             
-            for index, form_name in enumerate(batch_form_names, start=start_index + 1):
-                # Modify line 5 to reflect the step number
-                step_label = f"STEP{index:03d}"  # Format STEP001, STEP002, etc.
+            step_value = f"STEP{(each_step+1)*10:03d}"
+            mid_batch[0] = re.sub(r"STEP\w{3}", step_value, mid_batch[0])
+            
+            step_lines += mid_batch
+
+            if each_form >= len_forms:
+                break
+
+            for _ in range(5):
                 
-                # Copy the lines to repeat and replace line 5 and line 6
-                modified_lines = lines_to_repeat[:]
-                modified_lines[0] = step_label  # Replace line 5 (index 0)
-                modified_lines[1] = form_name   # Replace line 6 (index 1)
-                
-                # Write the modified lines to the output file
-                output.writelines(modified_lines)
-                output.write("\n")  # Add a blank line between sections
+                if each_form >= len_forms:
+                    break
 
-# Example usage:
+                step_lines.append(lines1[22])
 
-generate_output_files('input_file_1.txt', 'input_file_2.txt', 'output_file', batch_size=10)
+                if "<form_number>" in lines1[23]:
+                    modified_line = lines1[23].replace("<form_number>", forms_list[each_form].strip())
+                    step_lines.append(modified_line)
+                    step_lines.append(lines1[24])
+                if "<form_number>" in lines1[25]:
+                    modified_line = lines1[25].replace("<form_number>", forms_list[each_form].strip())
+                    step_lines.append(modified_line)
 
+                each_form += 1
+        
+            file_out_lines = start_batch + step_lines + last_step
+
+        print('at end' + str(each_form))
+
+        batch_counter += 1
+        output_file = open(f"{output_file_prefix}_{batch_counter}.txt", 'a')
+
+        for each_line in file_out_lines:
+            output_file.write(each_line) 
+
+    # Close the final output file
+        output_file.close()
+
+
+
+
+# This block ensures the function is called when the script is executed directly
+if __name__ == "__main__":
+    # Set file paths (adjust these to your actual file paths)
+    file1_path = r'C:\Users\maddswa\source\repos\PythonDocumerge\Documerge_python\constant_JCL.txt'
+    file2_path = r'C:\Users\maddswa\source\repos\PythonDocumerge\Documerge_python\form_numbers.txt'   
+    output_path = r'C:\Users\maddswa\source\repos\PythonDocumerge\Documerge_python\JCL'       
+
+    # Call the function to process the files
+    process_files(file1_path, file2_path, output_path)

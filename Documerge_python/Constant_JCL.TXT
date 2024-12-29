@@ -1,0 +1,41 @@
+//HGEDLLDQ JOB (HGEDLQUA),MSGCLASS=Q,CLASS=T,
+//         COND=(5,LE),NOTIFY=TE29,
+//*
+//JOBLIB     DD DSN=VND.DCI.DMRG320.LOADLIB,DISP=SHR
+//*
+//******************************************************************
+//STEP010 EXEC  PGM=VLMMAINT
+//******************************************************************
+//*
+//ISIWORK  DD DSN=&&ISIWORK,
+//            UNIT=,
+//            DISP=(NEW,DELETE,DELETE),
+//            SPACE=(TRK,(1,30)),
+//            DCB=BLKSIZE=19069
+//*
+//SYSPRINT DD  SYSOUT=*
+//LISTING  DD  SYSOUT=*
+//MESSAGE  DD  SYSOUT=*
+//REPORT   DD  SYSOUT=*
+//VLAMLIB  DD  DSN=DDM.DMRG.DOCUMENT.LIBRARY,DISP=SHR
+//PRODLIB  DD  DSN=QDM.DMRG.DOCUMENT.LIBRARY,DISP=SHR
+//SYSIN    DD  *
+  COPY FROMLIBRARYDD=VLAMLIB -
+       FROMMEMBER=<form_number>(HIGH) -
+       TOLIBRARYDD=PRODLIB -
+       TOMEMBER=<form_number>(NEW)
+/*
+//******************************************************************
+//STEP020 EXEC  PGM=VLMMAINT
+//******************************************************************
+//SYSPRINT DD  SYSOUT=*
+//LISTING  DD  SYSOUT=*
+//MESSAGE  DD  SYSOUT=*
+//REPORT   DD  SYSOUT=*
+//VLAMLIB  DD  DSN=QDM.DMRG.DOCUMENT.LIBRARY,DISP=SHR
+//SYSIN    DD  *
+  DIRECTORY MEM=*(*) -
+            LIBRARYDD=VLAMLIB -
+            TYPE=DOCUMERGE
+/*
+//
